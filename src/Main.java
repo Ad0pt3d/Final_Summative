@@ -97,6 +97,11 @@ public class Main extends JFrame {
            Date date = new Date();
            String time = sdf.format(date);
 
+           int hour = Integer.parseInt(time.substring(0, 2));
+           int min = Integer.parseInt(time.substring(3, 5));
+
+
+
            String name = nameField.getText();
            String clockOut = time;
 
