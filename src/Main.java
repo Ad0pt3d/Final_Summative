@@ -13,6 +13,9 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Main extends JFrame {
 
@@ -31,20 +34,21 @@ public class Main extends JFrame {
        model.addColumn("Wage/Hr");
        model.addColumn("Hours Worked");
        model.addColumn("Total Pay");
+       model.addColumn("Date");
 
-       model.addRow(new Object[]{"Rafi", "15", "0", "0"});
-       model.addRow(new Object[]{"Peeker", "15", "0", "0"});
+       model.addRow(new Object[]{"Rafi", "15", "0", "0", "N/A"});
+       model.addRow(new Object[]{"Peeker", "15", "0", "0", "N/A"});
        scrollPane = new JScrollPane(employeeTable);
        scrollPane.setPreferredSize(new Dimension(300, 150));
 
        nameLabel = new JLabel("Name:");
-       nameField = new JTextField(10);
+       nameField = new JTextField("Rafi", 10);
 
        wageLabel = new JLabel("Wage/Hr:");
-       wageField = new JTextField(10);
+       wageField = new JTextField("15", 10);
 
        hoursLabel = new JLabel("Hours Worked:");
-       hoursField = new JTextField(10);
+       hoursField = new JTextField("5", 10);
 
        addButton = new JButton("Add");
        addButton.addActionListener(new AddButtonListener());
@@ -52,7 +56,7 @@ public class Main extends JFrame {
        removeButton = new JButton("Remove");
        removeButton.addActionListener(new RemoveButtonListener());
 
-       updateWageButton = new JButton("Update Wage");
+       updateWageButton = new JButton("Update");
        updateWageButton.addActionListener(new UpdateButtonListener());
 
        JPanel inputPanel = new JPanel();
@@ -66,7 +70,6 @@ public class Main extends JFrame {
        inputPanel.add(removeButton);
        inputPanel.add(updateWageButton);
 
-
        add(scrollPane, BorderLayout.CENTER);
        add(inputPanel, BorderLayout.SOUTH);
 
@@ -78,14 +81,18 @@ public class Main extends JFrame {
 
    private class AddButtonListener implements  ActionListener {
        public void actionPerformed(ActionEvent e) {
+           Date date = new Date();
+           SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+           String strDate = sdf.format(date);
+
            String name = nameField.getText();
-           double wageHr = Double.parseDouble(wageField.getText());
-           double hoursWorked = Double.parseDouble(hoursField.getText());
+           String wageHr = String.valueOf(wageField.getText());
+           String hoursWorked = String.valueOf(hoursField.getText());
 
            boolean exists = checkIfExist();
 
            if (!exists) {
-               model.addRow(new Object[]{name, wageHr, hoursWorked, TotalPay(hoursWorked, wageHr)});
+               model.addRow(new Object[]{name, wageHr, hoursWorked, TotalPay(Double.parseDouble(hoursWorked), Double.parseDouble(wageHr)), strDate});
            }
 
        }
@@ -93,15 +100,20 @@ public class Main extends JFrame {
 
     private class UpdateButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            String strDate = sdf.format(date);
+
             String name = nameField.getText();
-            Double wageHr = Double.parseDouble(wageField.getText());
-            Double hoursWorked = Double.parseDouble(hoursField.getText());
+            String wageHr = String.valueOf(wageField.getText());
+            String hoursWorked = String.valueOf(hoursField.getText());
 
             for (int row = 0; row < employeeTable.getRowCount(); row++) {
                 if (name.equals(employeeTable.getValueAt(row, 0))) {
                     employeeTable.setValueAt(wageHr, row, 1);
                     employeeTable.setValueAt(hoursWorked, row, 2);
-                    employeeTable.setValueAt(TotalPay(hoursWorked, wageHr), row, 3);
+                    employeeTable.setValueAt(TotalPay(Double.parseDouble(hoursWorked), Double.parseDouble(wageHr)), row, 3);
+                    employeeTable.setValueAt(strDate, row, 4);
                 }
             }
         }
@@ -126,7 +138,7 @@ public class Main extends JFrame {
 
        for (int row = 0; row < employeeTable.getRowCount(); row++) {
            if (name.equals(employeeTable.getValueAt(row, 0))) {
-               System.out.println("Employee Already Exists");
+               JOptionPane.showMessageDialog(null, "Employee Already Exists");
                exists = true;
            }
        }
