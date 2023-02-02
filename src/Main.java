@@ -13,18 +13,15 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
 
 public class Main extends JFrame {
 
    DefaultTableModel model = new DefaultTableModel();
    private JTable employeeTable;
    private JScrollPane scrollPane;
-   private JButton addButton, updateWageButton;
-   private JLabel nameLabel, wageLabel, hoursLabel, totalLabel;
-   private JTextField nameField, wageField;
+   private JButton addButton, updateWageButton, removeButton;
+   private JLabel nameLabel, wageLabel, hoursLabel;
+   private JTextField nameField, wageField, hoursField;
 
 
    public Main() {
@@ -46,18 +43,27 @@ public class Main extends JFrame {
        wageLabel = new JLabel("Wage/Hr:");
        wageField = new JTextField(10);
 
+       hoursLabel = new JLabel("Hours Worked:");
+       hoursField = new JTextField(10);
+
        addButton = new JButton("Add");
        addButton.addActionListener(new AddButtonListener());
 
+       removeButton = new JButton("Remove");
+       removeButton.addActionListener(new RemoveButtonListener());
+
        updateWageButton = new JButton("Update Wage");
-       updateWageButton.addActionListener(new UpdateWageButtonListener());
+       updateWageButton.addActionListener(new UpdateButtonListener());
 
        JPanel inputPanel = new JPanel();
        inputPanel.add(nameLabel);
        inputPanel.add(nameField);
        inputPanel.add(wageLabel);
        inputPanel.add(wageField);
+       inputPanel.add(hoursLabel);
+       inputPanel.add(hoursField);
        inputPanel.add(addButton);
+       inputPanel.add(removeButton);
        inputPanel.add(updateWageButton);
 
 
@@ -73,28 +79,44 @@ public class Main extends JFrame {
    private class AddButtonListener implements  ActionListener {
        public void actionPerformed(ActionEvent e) {
            String name = nameField.getText();
-           String wageHr = wageField.getText();
+           double wageHr = Double.parseDouble(wageField.getText());
+           double hoursWorked = Double.parseDouble(hoursField.getText());
 
            boolean exists = checkIfExist();
 
            if (!exists) {
-               model.addRow(new Object[]{name, wageHr, "0", "0"});
+               model.addRow(new Object[]{name, wageHr, hoursWorked, TotalPay(hoursWorked, wageHr)});
            }
 
        }
    }
 
-    private class UpdateWageButtonListener implements ActionListener {
+    private class UpdateButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             String name = nameField.getText();
-            String wageHr = wageField.getText();
+            Double wageHr = Double.parseDouble(wageField.getText());
+            Double hoursWorked = Double.parseDouble(hoursField.getText());
 
             for (int row = 0; row < employeeTable.getRowCount(); row++) {
                 if (name.equals(employeeTable.getValueAt(row, 0))) {
                     employeeTable.setValueAt(wageHr, row, 1);
+                    employeeTable.setValueAt(hoursWorked, row, 2);
+                    employeeTable.setValueAt(TotalPay(hoursWorked, wageHr), row, 3);
                 }
             }
         }
+    }
+
+    private class RemoveButtonListener implements ActionListener {
+       public void actionPerformed(ActionEvent e) {
+           String name = nameField.getText();
+
+           for (int row = 0; row < employeeTable.getRowCount(); row++) {
+               if (name.equals(employeeTable.getValueAt(row, 0))) {
+                   model.removeRow(row);
+               }
+           }
+       }
     }
 
    public boolean checkIfExist() {
@@ -114,6 +136,12 @@ public class Main extends JFrame {
        else {
            return false;
        }
+   }
+
+   public double TotalPay(double hoursWorked, double wageHr) {
+       double totalPay = (hoursWorked * wageHr);
+
+       return totalPay;
    }
 
 
